@@ -1,18 +1,47 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "debugManager.h"
+#include "mqttManager.h"
+#include "WiFiManager.h"
+
+
+const char TOPICO_COMANDO[] = "senai134/gtsv/esp32/comando";
+void tratarJsonComando(const String& mensagem);
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+
+  Serial.begin(9600);
+  conectarWiFi();
+  configurarMQTT();
+  conectarMQTT();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+   garantirWifiConectado();
+   void garantirMQTTConectado();
+   loopMQTT();
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void tratarMensagemRecebida(const char *topico, const String &mensagem)
+{
+  debugInfo("=============================");
+  debugInfo("Mensagem recebida na aplicação");
+  debugInfo("=============================");
+
+  if (topico == nullptr)
+  {
+    debugErro("Topico MQTT invalido");
+    return;
+  }
+  debugInfo("Topico: " + String(topico));
+  debugInfo("Mensagem: " + mensagem);
+
+  if (strcmp(topico, TOPICO_COMANDO) == 0)
+  {
+    tratarJsonComando(mensagem);
+    return;
+  }
+
+  debugErro("Topico não tratado: " + String(topico));
 }
