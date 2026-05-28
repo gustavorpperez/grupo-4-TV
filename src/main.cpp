@@ -6,7 +6,7 @@
 #include "WiFiManager.h"
 
 
-const char TOPICO_COMANDO[] = "senai134/gtsv/esp32/comando";
+const char TOPICO_COMANDO[] = "senai134/mbolas/televisao";
 void tratarJsonComando(const String& mensagem);
 
 void setup() {

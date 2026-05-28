@@ -1,37 +1,34 @@
-//* !SECRETS.H
-#include <Arduino.h>
 #include "secrets.h"
-// configurações do WiFi
+#include <Arduino.h>
 
-const char *WIFI_SSID = "SALA09";
-const char *WIFI_SENHA = "info@134";
+//Configurações do WiFi
 
-//===============================
-// MQTT
-//===============================
+const char* WIFI_SSID = "SALA 09";
+const char* WIFI_SENHA = "info@134";
 
+// ===================================
+// MQTT 
+// ===================================
 
+const char *MQTT_BROKER = "b750b6be1c664ede873e0c265a3493bb.s1.eu.hivemq.cloud";
+const int MQTT_PORTA = 8883;
 
- const char *MQTT_BROKER = "b750b6be1c664ede873e0c265a3493bb.s1.eu.hivemq.cloud";
- const int MQTT_porta = 8883;
+const char* MQTT_CLIENT_ID = "esp32_grupo4_TV";
 
-const char *MQTT_CLIENT_ID = "iotconsole-3b103a69-eb47-4b70-af24-22cf84b56aea";
- const char *MQTT_USUARIO = "grupo4";
- const char *MQTT_SENHA = "Senai@134";
+const char* MQTT_USUARIO = "grupo4";
+const char* MQTT_SENHA = "Senai@134";
 
- const bool MQTT_TLS = true;
+const bool MQTT_TLS = true;
 
-//certificado CA https://letsencrypt.org/certs/isrgrootx1.pem
- const char MQTT_CERTIFICADO_CA[] PROGMEM = "";
+const char MQTT_CERTIFICADO_CA[] PROGMEM = "";
 
- //===============================
-// AWS
-//===============================
+//=============================================
+//AWS
+//=============================================
+
 const bool USAR_AWS_IOT = true;
 
-extern const char* AWS_IOT_ENDPOINT = "a2uwr88uek3twk-ats.iot.us-east-1.amazonaws.com"; //endereço do broker IOT core
-
-extern const char AWS_CERT_CA[] PROGMEM = R"CA(
+const char AWS_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
 MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF
 ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6
@@ -52,9 +49,9 @@ o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU
 5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy
 rqXRfboQnoZsG4q5WTP468SQvvG5
 -----END CERTIFICATE-----
-)CA";
+)EOF";
 
-extern const char AWS_CERT_CRT[] PROGMEM = R"CRT(
+const char AWS_CERT_CRT[] PROGMEM = R"CRT(
 -----BEGIN CERTIFICATE-----
 MIIDWTCCAkGgAwIBAgIUSBGUc5CLVKVN79hntialiOibXC8wDQYJKoZIhvcNAQEL
 BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g
@@ -74,9 +71,10 @@ dGEsJHUo/6wsEjDl85wnS+/Y+H5ur8w5jn4zUJp4p6BJ6hLm0cHRfYVbak+r+Tqo
 dnfxHaCi9cfNKYrNpvidUzgbnaKk93WOKpO/n+Oa0yFo2UCNAAu+QsFAcK7x6zc5
 md9QjdGbkjCcGrul2M2vD+WKHhZNrqf+wd21igMU1TRUer9U1PdRLfhxdUogtzOc
 pZXb36bJTPau8UXDdJPWtzflsl/+ZmSA00wuE2Vmu/F33QC92fLsruYsF9y1
------END CERTIFICATE-----)CRT";
+-----END CERTIFICATE-----
+)CRT";
 
-extern const char AWS_CERT_PRIVATE[] PROGMEM = R"PV(
+const char AWS_CERT_PRIVATE[] PROGMEM = R"PV(
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEApT+x3FP/VamNVR/ogr3RwWfS8V6bmR37Mk2Xb6U6/Iiwdtt3
 L/ZUIoqwhJqSZVCRrcEIXTvXpiZvkChW/roa0YFyeOb9nlCAq1cwpcBk51zUzKN5
@@ -106,40 +104,38 @@ DhbPE3hJNA/NawFYbM8dHDhAJDeidEO1pLCsc4PuUyONJn1RN9lf
 -----END RSA PRIVATE KEY-----
 )PV";
 
-extern const int AWS_IOT_PORT = 8883;
 
-extern const char* AWS_IOT_CLIENT_ID = " esp32Ucheio1212";
+const char* AWS_IOT_ENDPOINT = "a2uwr88uek3twk-ats.iot.us-east-1.amazonaws.com";  //Endereço do broker IoT Core
 
+const int AWS_IOT_PORT = 8883;
 
-const char *TOPICOS_PUBLICAR[] =
-    {
-        "senai134/esp32/status",
-        "senai134/esp32/log",
-        "senai134/esp32/resposta"};
+const char* AWS_IOT_CLIENT_ID = "grupo_YOSHI";
 
-const int TOTAL_TOPICOS_PUBLICAR = 3;
- 
-const char *TOPICOS_RECEBER[] =
-    {
-        "senai134/ucheio/esp32/comando",
-        "senai134/ucheio/esp32/config",
-        "senai134/ucheio/esp32/display"};
+//=============================================
+//TÓPICOS
+//=============================================
 
-const int TOTAL_TOPICOS_RECEBER = 3;
+const char* TOPICOS_PUBLICAR[] = {
+        "senai134/modulo/televisao"
+};
 
-//===============================
+const int TOTAL_TOPICOS_PUBLICAR = 4;
+
+const char* TOPICOS_RECEBER[] = {
+    "senai134/mbolas/televisao"
+};
+
+const int TOTAL_TOPICOS_RECEBER = 4;
+
+// ===================================
 // DEBUG
-//===============================
+// ===================================
 
-// 0 - sem mensagens
-// 1 - apenas erros
-// 2 - todas as mensagens
-const int DEBUG_NIVEL_INICIAL = 2;
+// 0 = sem mensagens
+// 1 = apenas erros
+// 2 = todas as mensagens
+const int DEBUG_NIVEL_INICIAL = 2; 
 
-// pino usado para forçar todas as mensagens
+// Pino usado para forçar todas as mensagens
 const int PINO_HABILITA_DEBUG_COMPLETO = 4;
-
-
-
-
 
