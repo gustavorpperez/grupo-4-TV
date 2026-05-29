@@ -25,7 +25,8 @@ decode_results results;
 
 const char TOPICO_COMANDO[] = "senai134/sala09/televisao/publicar";
 void tratarJsonComando(const String& mensagem);
-void conectarTelevisao();
+void conectarTelevisao(const String& mensagem);
+void receberSinalInfraRed();
 
 
 
@@ -78,6 +79,26 @@ const ComandoIR tabelaComandos[] = {
   
 
 
+void setup() {
+
+  Serial.begin(9600);
+  irsend.begin();         
+  irrecv.enableIRIn();
+  conectarWiFi();
+  configurarMQTT();
+  conectarMQTT();
+  debugInfo("Pronto! Aguardando comandos MQTT...");
+}
+
+void loop() {
+  garantirWifiConectado();
+  garantirMQTTConectado();
+  loopMQTT();
+  receberSinalInfraRed();
+  receberSinalInfraRed();
+}
+
+
 void tratarMensagemRecebida(const char *topico, const String &mensagem)
 {
   debugInfo("==============================");
@@ -102,6 +123,30 @@ void tratarMensagemRecebida(const char *topico, const String &mensagem)
 } 
 
 
+void conectarTelevisao(const String& mensagem)
+{
+    JsonDocument doc;
+
+    DeserializationError erro = deserializeJson(doc, mensagem);
+  if (erro)
+  {
+    debugErro("Erro ao interpretar JSON");
+    debugErro(erro.c_str());
+    return;
+  }
+  if (erro)
+
+  if (!doc["tv"]["comando"].is<const char*>())
+  {
+    debugErro("JSON inválido. Use tv.comando (ex: power, volume_up, mute...)");
+    return;
+  }
+
+  String comando = doc["tv"]["comando"].as<String>();
+  comando.toLowerCase();
+  debugInfo("Comando recebido: " + comando);
+}
+
 void conectarTelevisao(uint32_t codigo)
 {
   debugInfo("Enviando sinal IR...");
@@ -115,7 +160,7 @@ void conectarTelevisao(uint32_t codigo)
     delay(200);  // debounce do botão
 
   debugInfo("Sinal IR enviado: 0x" + String(codigo, HEX));
-}
+  publicarMQTT(TOPICO_STATUS, "{\"tv\":{\"status\":\"comando_enviado\"}}");
 
 
 void receberSinalInfraRed() //* Se apontar o controle e dar o sinal, ira aparecer dentro do terminal
