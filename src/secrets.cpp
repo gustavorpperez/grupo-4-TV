@@ -116,18 +116,18 @@ const char* AWS_IOT_CLIENT_ID = "grupo_YOSHI";
 //=============================================
 
 const char* TOPICOS_PUBLICAR[] = {
-        "senai134/modulo/televisao"
-        "dispositivo/modulo/ihm/comando"
+        "senai134/sala09/televisao/publicar"
+        "senai134/sala09/ihm/publicar"
 };
 
-const int TOTAL_TOPICOS_PUBLICAR = 4;
+const int TOTAL_TOPICOS_PUBLICAR = 2;
 
 const char* TOPICOS_RECEBER[] = {
-    "senai134/modulo/televisao",
-    "senai134/modulo/ihm/confirmacao"
+    "senai134/sala09/modulo/televisao/receber"
+    "senai134/sala09/ihm/receber"
 };
 
-const int TOTAL_TOPICOS_RECEBER = 4;
+const int TOTAL_TOPICOS_RECEBER = 2;
 
 // ===================================
 // DEBUG

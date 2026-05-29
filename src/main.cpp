@@ -23,14 +23,14 @@ IRrecv irrecv(RECV_PIN);
 decode_results results;
 
 
-const char TOPICO_COMANDO[] = "senai134/mbolas/televisao";
+const char TOPICO_COMANDO[] = "senai134/sala09/televisao/publicar";
 void tratarJsonComando(const String& mensagem);
 void conectarTelevisao();
 
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   conectarWiFi();
   configurarMQTT();
   conectarMQTT();
@@ -48,9 +48,9 @@ void loop() {
 
 void tratarMensagemRecebida(const char *topico, const String &mensagem)
 {
-  debugInfo("=============================");
+  debugInfo("==============================");
   debugInfo("Mensagem recebida na aplicação");
-  debugInfo("=============================");
+  debugInfo("==============================");
 
   if (topico == nullptr)
   {
@@ -81,14 +81,19 @@ void conectarTelevisao()
 
     Serial.println("Sinal enviado!");
     delay(200);  // debounce do botão
-  
 }
 
 void receberSinalInfraRed() //* Se apontar o controle e dar o sinal, ira apareecer no terminal
 {
-    if (irrecv.decode(&results)) {
+    if (irrecv.decode(&results)) 
+  {
     Serial.print("Sinal recebido: 0x");
     Serial.println(results.value, HEX);
     irrecv.resume();
   }
+}
+
+void retornarIHM()
+{
+  //TODO quando realizar uma ação, retornar uma mensagem para o IHM.
 }
