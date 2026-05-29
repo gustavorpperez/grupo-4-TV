@@ -5,7 +5,7 @@
 
 void configurarMQTT();
 void conectarMQTT();
-void garantirMQTTconectado();
+void garantirMQTTConectado();
 void loopMQTT();
 void isConnected();
 
