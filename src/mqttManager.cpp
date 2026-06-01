@@ -66,16 +66,7 @@ void callbackInternoMQTT(char* topico, byte* payload, unsigned int tamanho )
     debugInfo("Tópico: " + String (topico));
     debugInfo("Mensagem: " + mensagem);
 
-    const char* topicoEsquemaIHM = obterTopicoRecebimento(0);
-
-    if (String(topico) == String(topicoEsquemaIHM))
-    {
-        debugInfo("Mensagem do IHM recebida! Enviando confirmação...");
-
-        String confirmacao = "Mensagem recebida: '" + mensagem + "'";
-        publicarMensagemNoTopico(0, confirmacao.c_str());
-    }
-
+    
     if(callbackDaAplicacao != nullptr)
     {
         callbackDaAplicacao(topico, mensagem);

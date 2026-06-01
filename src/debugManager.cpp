@@ -76,7 +76,4 @@ void configurarDebug()
             Serial.println("[INFO] Debug iniciado em apenas erros");
         }
         debugInfo("=====================");
-
-
-    
 }
