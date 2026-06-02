@@ -13,7 +13,7 @@ const char* WIFI_SENHA = "info@134";
 const char *MQTT_BROKER = "b750b6be1c664ede873e0c265a3493bb.s1.eu.hivemq.cloud";
 const int MQTT_PORTA = 8883;
 
-const char* MQTT_CLIENT_ID = "yoshi-mqtt";
+const char* MQTT_CLIENT_ID = "yoshi-mqttfx";
 
 const char* MQTT_USUARIO = "grupo4";
 const char* MQTT_SENHA = "senai@134";
@@ -105,7 +105,7 @@ DfDJLDpOF0L5k78Wm3t3Quy8DdYh8cu7CzN+rduEfWk+D3LslLuapw==
 )PV";
 
 
-const char* AWS_IOT_ENDPOINT = "a2uwr88uek3twk-ats.iot.us-east-1.amazonaws.com";  //Endereço do broker IoT Core
+const char* AWS_IOT_ENDPOINT = "a3cxr9ayydc4np-ats.iot.us-east-1.amazonaws.com";  //Endereço do broker IoT Core
 
 const int AWS_IOT_PORT = 8883;
 
@@ -116,14 +116,14 @@ const char* AWS_IOT_CLIENT_ID = "yoshi-esp32";
 //=============================================
 
 const char* TOPICOS_PUBLICAR[] = {
-    "senai134/equipe/yoshi/devices/publicar"//tópico teste
+    "senai134/equipe/yoshi/devices"//tópico teste
     "senai134/shared/projeto/publicar"
 };
 
 const int TOTAL_TOPICOS_PUBLICAR = 2;
 
 const char* TOPICOS_RECEBER[] = {
-    "senai134/equipe/yoshi/devices/receber"
+
     "senai134/shared/projeto/receber"
 };
 

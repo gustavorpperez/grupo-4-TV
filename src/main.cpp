@@ -16,7 +16,7 @@ IRsend irsend(IR_LED_PIN);
 IRrecv irrecv(RECV_PIN);
 decode_results results;
 
-const char TOPICO_COMANDO[] = "senai134/sala09/televisao/publicar";
+const char TOPICO_COMANDO[] = "senai134/equipe/yoshi/devices";
 void tratarJsonComando(const String &mensagem);
 void conectarTelevisao(uint32_t codigo);
 void receberSinalInfraRed();
@@ -135,7 +135,7 @@ void conectarTelevisao(uint32_t codigo)
   delay(200); // debounce do botão
 
   debugInfo("Sinal IR enviado: 0x" + String(codigo, HEX));
-  publicarMensagem(TOPICO_STATUS, "{\"tv\":{\"status\":\"comando_enviado\"}}");
+ // publicarMensagem(TOPICO_STATUS, "{\"tv\":{\"status\":\"comando_enviado\"}}");
 }
 
 void receberSinalInfraRed() //* Se apontar o controle e dar o sinal, ira aparecer dentro do terminal

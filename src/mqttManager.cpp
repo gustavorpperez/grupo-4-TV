@@ -220,7 +220,7 @@ int obterTotalTopicosRecebimento()
     return TOTAL_TOPICOS_RECEBER;    
 }
 
-void garantirMQTTconectado()
+void garantirMQTTConectado()
 {
     if(!wifiEstaConectado())
     {
