@@ -152,11 +152,9 @@ void retornarIHM()
 {
   if (MQTTrecebido)
   {
-    String mensagem = "mbolas";
+    String mensagem = "MQTT recebido";
     
     publicarMensagemNoTopico(1, mensagem.c_str());
-
-
 
     MQTTrecebido = false;
   }

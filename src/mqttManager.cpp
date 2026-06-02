@@ -60,9 +60,9 @@ void callbackInternoMQTT(char* topico, byte* payload, unsigned int tamanho )
         mensagem += (char)payload[i];
     }
 
-    debugInfo("===================");
+    debugInfo("=======================");
     debugInfo(" Mensagem MQTT recebida");
-    debugInfo("====================");
+    debugInfo("=======================");
     debugInfo("Tópico: " + String (topico));
     debugInfo("Mensagem: " + mensagem);
 
