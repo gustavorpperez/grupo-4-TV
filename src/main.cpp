@@ -16,7 +16,6 @@ IRsend irsend(IR_LED_PIN);
 IRrecv irrecv(RECV_PIN);
 decode_results results;
 
-const char TOPICO_COMANDO[] = "senai134/equipe/yoshi/devices";
 void tratarJsonComando(const String &mensagem);
 void conectarTelevisao(uint32_t codigo);
 void receberSinalInfraRed();
@@ -87,7 +86,7 @@ void tratarMensagemRecebida(const char *topico, const String &mensagem)
   debugInfo("Topico: " + String(topico));
   debugInfo("Mensagem: " + mensagem);
 
-  if (strcmp(topico, TOPICO_COMANDO) == 0)
+  if (strcmp(topico, "senai134/equipe/yoshi/devices/#") == 0)
   {
     tratarJsonComando(mensagem);
     return;
@@ -154,7 +153,7 @@ void retornarIHM()
   {
     String mensagem = "MQTT recebido";
     
-    publicarMensagemNoTopico(1, mensagem.c_str());
+    publicarMensagemNoTopico(0, mensagem.c_str());
 
     MQTTrecebido = false;
   }

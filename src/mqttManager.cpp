@@ -84,8 +84,6 @@ void configurarMQTT()
     debugInfo("Configurando MQTT...");
     debugInfo("============================");
 
-    if (USAR_AWS_IOT)
-    {
     debugInfo("Modo selecionado: AWS IoT Core.");
 
     wifiClientSecure.setCACert(AWS_CERT_CA);
@@ -98,41 +96,6 @@ void configurarMQTT()
     debugInfo("Endpoint AWS IoT : " + String(AWS_IOT_ENDPOINT));
     debugInfo("Porta AWS IoT: " + String(AWS_IOT_PORT));
 
-    }
-
-    else if(MQTT_TLS)
-    {
-        debugInfo("Modo selecionado: MQTT com TLS.");
-
-        if(strlen(MQTT_CERTIFICADO_CA) > 100)
-        {
-            debugInfo("Certificado CA do broker MQTT configurado.");
-            wifiClientSecure.setCACert(MQTT_CERTIFICADO_CA);
-        }
-        else
-        {
-            debugErro("Certificado não configurado. Usando setInscure apenas para teste.");
-            wifiClientSecure.setInsecure();
-        }
-
-        mqttClient.setClient(wifiClientSecure);
-        mqttClient.setServer(MQTT_BROKER, MQTT_PORTA);
-
-        debugInfo("Broker MQTT: " + String(MQTT_BROKER));
-        debugInfo("Porta MQTT: " + String(MQTT_PORTA));
-    }
-
-    else //Conectar ao broker publico sem certificado
-    {
-        debugInfo("Modo selecionado: MQTT SEM TLS.");
-
-        mqttClient.setClient(wifiCliente);
-        mqttClient.setServer(MQTT_BROKER, MQTT_PORTA);
-
-        debugInfo("Broker MQTT: " + String(MQTT_BROKER));
-        debugInfo("Porta MQTT: " + String(MQTT_PORTA));     
-    }
-
     mqttClient.setCallback(callbackInternoMQTT);
     debugInfo("Callback interno no MQTT configurado.");
 }
@@ -142,6 +105,7 @@ void conectarMQTT()
     if(!wifiEstaConectado())
     {
         debugErro("MQTT não pode conectar porque o WiFi está desconectado.");
+        return;
     }
 
     debugInfo("===========================");
@@ -155,27 +119,8 @@ void conectarMQTT()
     {
         debugInfo("Tentando conectar ao broker MQTT. Tentativa: " + String(tentativasMQTT));
 
-        bool conectado = false;
+        bool conectado = mqttClient.connect(AWS_IOT_CLIENT_ID);;
 
-        if(USAR_AWS_IOT)
-        {
-            conectado = mqttClient.connect(AWS_IOT_CLIENT_ID);
-        }
-
-        else
-        {
-            if(strlen(MQTT_USUARIO) > 0)
-            {
-                debugInfo("Conectado MQTT com usuário e senha.");
-
-                conectado = mqttClient.connect(MQTT_CLIENT_ID, MQTT_USUARIO, MQTT_SENHA);
-            }
-            else//conexão em modo anônimo
-            {
-                debugInfo("Conectado MQTT sem usuário e senha.");
-                conectado = mqttClient.connect(MQTT_CLIENT_ID);
-            }
-        }
         if(conectado)
         {
             debugInfo("MQTT conectado com sucesso.");
@@ -201,6 +146,7 @@ void conectarMQTT()
             }
 
             publicarMensagemNoTopico(0, "ESP32 conectado ao MQTT");
+
         }
         else
         {
@@ -222,18 +168,19 @@ int obterTotalTopicosRecebimento()
 
 void garantirMQTTConectado()
 {
-    if(!wifiEstaConectado())
+    if (WiFi.status() != WL_CONNECTED) 
     {
-        debugErro("MQTT não reconectado porque o WiFi está desconectado");
-        return;
+        debugErro("MQTT não conectado porque o WiFi está desconectado.");
+        return; 
     }
 
-    if(!mqttClient.connected())
+    if (!mqttClient.connected())
     {
         debugErro("MQTT desconectado. Tentando reconectar...");
         conectarMQTT();
     }
 }
+
 
 void loopMQTT()
 {

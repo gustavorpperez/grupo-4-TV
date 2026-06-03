@@ -1,29 +1,13 @@
 #include "secrets.h"
 #include <Arduino.h>
 
-//Configurações do WiFi
+// Configurações do WiFi
 
-const char* WIFI_SSID = "SALA 09";
-const char* WIFI_SENHA = "info@134";
-
-// ===================================
-// MQTT 
-// ===================================
-
-const char *MQTT_BROKER = "b750b6be1c664ede873e0c265a3493bb.s1.eu.hivemq.cloud";
-const int MQTT_PORTA = 8883;
-
-const char* MQTT_CLIENT_ID = "yoshi-mqttfx";
-
-const char* MQTT_USUARIO = "grupo4";
-const char* MQTT_SENHA = "senai@134";
-
-const bool MQTT_TLS = true;
-
-const char MQTT_CERTIFICADO_CA[] PROGMEM = "";
+const char *WIFI_SSID = "SALA 09";
+const char *WIFI_SENHA = "info@134";
 
 //=============================================
-//AWS
+// AWS
 //=============================================
 
 const bool USAR_AWS_IOT = true;
@@ -104,30 +88,29 @@ DfDJLDpOF0L5k78Wm3t3Quy8DdYh8cu7CzN+rduEfWk+D3LslLuapw==
 -----END RSA PRIVATE KEY-----
 )PV";
 
-
-const char* AWS_IOT_ENDPOINT = "a3cxr9ayydc4np-ats.iot.us-east-1.amazonaws.com";  //Endereço do broker IoT Core
+const char *AWS_IOT_ENDPOINT = "a3cxr9ayydc4np-ats.iot.us-east-1.amazonaws.com"; // Endereço do broker IoT Core
 
 const int AWS_IOT_PORT = 8883;
 
-const char* AWS_IOT_CLIENT_ID = "yoshi-esp32";
+const char *AWS_IOT_CLIENT_ID = "yoshi-programa";
 
 //=============================================
-//TÓPICOS
+// TÓPICOS
 //=============================================
 
-const char* TOPICOS_PUBLICAR[] = {
-    "senai134/equipe/yoshi/devices"//tópico teste
-    "senai134/shared/projeto/publicar"
+const char *TOPICOS_PUBLICAR[] = {
+    "senai134/equipe/yoshi/devices/televisao",
+    //"senai134/shared/projeto/publicar"
 };
 
-const int TOTAL_TOPICOS_PUBLICAR = 2;
+const int TOTAL_TOPICOS_PUBLICAR = 1;
 
-const char* TOPICOS_RECEBER[] = {
-
-    "senai134/shared/projeto/receber"
+const char *TOPICOS_RECEBER[] = {
+    "senai134/equipe/yoshi/devices/#",
+    //"senai134/shared/projeto/#"
 };
 
-const int TOTAL_TOPICOS_RECEBER = 2;
+const int TOTAL_TOPICOS_RECEBER = 1;
 
 // ===================================
 // DEBUG
@@ -136,8 +119,7 @@ const int TOTAL_TOPICOS_RECEBER = 2;
 // 0 = sem mensagens
 // 1 = apenas erros
 // 2 = todas as mensagens
-const int DEBUG_NIVEL_INICIAL = 2; 
+const int DEBUG_NIVEL_INICIAL = 2;
 
 // Pino usado para forçar todas as mensagens
 const int PINO_HABILITA_DEBUG_COMPLETO = 4;
-
