@@ -3,13 +3,14 @@
 #include <Arduino.h>
 #include <PubSubClient.h>
 
-#include "SECRETS.h"
-#include "WiFiManager.h"
-#include "MqttManager.h"
+#include "secrets.h"
+#include "WifiManager.h"
+#include "mqttManager.h"
 #include "DebugManager.h"
 
-// *criação de objetos
-WiFiClient WiFiCliente;
+// Criação de objetos 
+
+WiFiClient wifiCliente;
 WiFiClientSecure wifiClientSecure;
 
 PubSubClient mqttClient;
@@ -20,37 +21,37 @@ void registrarCallbackMensagem(CallbackMensagemMQTT callback)
 {
     callbackDaAplicacao = callback;
 
-    if (callbackDaAplicacao != nullptr)
+    if(callbackDaAplicacao != nullptr)
     {
         debugInfo("Callback da aplicação registrado com sucesso.");
     }
-    else
+    else 
     {
-        debugErro("callback da aplicação não foi registrado.");
+        debugErro("Callback da aplicação não foi registrado.");
     }
 }
 
-const char *obterTopicoPublicacao(int indiceTopico)
+const char* obterTopicoPublicacao(int indiceTopico)
 {
-    if (indiceTopico < 0 || indiceTopico >= TOTAL_TOPICOS_PUBLICAR)
+    if(indiceTopico < 0 || indiceTopico >= TOTAL_TOPICOS_PUBLICAR)
     {
-        debugErro("Indice invalido para topico de publicação: " + String(indiceTopico));
+        debugErro("Índice inválido para tópico de publicação: " + String(indiceTopico)); 
         return "";
     }
     return TOPICOS_PUBLICAR[indiceTopico];
 }
 
-const char *obterTopicoRecebimnto(int indiceTopico)
+const char* obterTopicoRecebimento(int indiceTopico)
 {
-    if (indiceTopico < 0 || indiceTopico >= TOTAL_TOPICOS_RECEBER)
+    if(indiceTopico < 0 || indiceTopico >= TOTAL_TOPICOS_RECEBER)
     {
-        debugErro("Indice invalido para topico de publicação: " + String(indiceTopico));
+        debugErro("Índice inválido para tópico de recebimento: " + String(indiceTopico)); 
         return "";
     }
     return TOPICOS_RECEBER[indiceTopico];
 }
 
-void callbackInternoMQTT(char *topico, byte *payload, unsigned int tamanho)
+void callbackInternoMQTT(char* topico, byte* payload, unsigned int tamanho )
 {
     String mensagem = "";
 
@@ -58,73 +59,42 @@ void callbackInternoMQTT(char *topico, byte *payload, unsigned int tamanho)
     {
         mensagem += (char)payload[i];
     }
-    debugInfo("==================================");
-    debugInfo("mensagem MQTT recebida.");
-    debugInfo("==================================");
-    debugInfo("topico: " + String(topico));
+
+    debugInfo("=======================");
+    debugInfo(" Mensagem MQTT recebida");
+    debugInfo("=======================");
+    debugInfo("Tópico: " + String (topico));
     debugInfo("Mensagem: " + mensagem);
 
-    if (callbackDaAplicacao != nullptr)
+    
+    if(callbackDaAplicacao != nullptr)
     {
         callbackDaAplicacao(topico, mensagem);
     }
+
     else
     {
-        debugErro("mensagem foi recebida, mas nenhum callback da aplicação registrado. ");
+        debugErro("Mensagem recebida, mas nenhuma callback da aplicação registrado.");
     }
 }
 
 void configurarMQTT()
 {
-    debugInfo("=================================");
-    debugInfo("Configuração MQTT...");
-    debugInfo("=================================");
+    debugInfo("============================");
+    debugInfo("Configurando MQTT...");
+    debugInfo("============================");
 
-    if (USAR_AWS_IOT)
-    {
-          debugInfo("Modo selecionado: AWS Iot Core");
+    debugInfo("Modo selecionado: AWS IoT Core.");
 
-           wifiClientSecure.setCACert(AWS_CERT_CA);
-           wifiClientSecure.setCertificate(AWS_CERT_CRT);
-           wifiClientSecure.setPrivateKey(AWS_CERT_PRIVATE);
+    wifiClientSecure.setCACert(AWS_CERT_CA);
+    wifiClientSecure.setCertificate(AWS_CERT_CRT);
+    wifiClientSecure.setPrivateKey(AWS_CERT_PRIVATE);
 
-           mqttClient.setClient(wifiClientSecure);
-           mqttClient.setServer(AWS_IOT_ENDPOINT , AWS_IOT_PORT);
+    mqttClient.setClient(wifiClientSecure);
+    mqttClient.setServer(AWS_IOT_ENDPOINT,AWS_IOT_PORT);
 
-           debugInfo("Endpoint AWS IoT: " + String(AWS_IOT_ENDPOINT));
-           debugInfo("Porta AWS IoT: " + String(AWS_IOT_PORT));
-    }
-    else if (MQTT_TLS)
-    {
-        debugInfo("Modo selecionado: MQTT com TLS");
-
-        if(strlen(MQTT_CERTIFICADO_CA) > 100)
-        {
-          debugInfo("Certificado CA do broker MQTT configurado");
-          wifiClientSecure.setCACert(MQTT_CERTIFICADO_CA);
-        }
-        else
-        {
-            debugErro("Certificado não configurado, Usando set insecure apenas para teste");
-            wifiClientSecure.setInsecure();
-        }
-        mqttClient.setClient(wifiClientSecure);
-        mqttClient.setServer(MQTT_BROKER, MQTT_porta);
-
-        
-        debugInfo("Broker MQTT: " + String(MQTT_BROKER));
-        debugInfo("Porta MQTT: " + String(MQTT_porta));
-    }
-    else
-    {
-        debugInfo("Modo selecionado: MQTT sem TLS");
-
-        mqttClient.setClient(WiFiCliente);
-        mqttClient.setServer(MQTT_BROKER, MQTT_porta);
-
-        debugInfo("Broker MQTT: " + String(MQTT_BROKER));
-        debugInfo("Porta MQTT: " + String(MQTT_porta));
-    }
+    debugInfo("Endpoint AWS IoT : " + String(AWS_IOT_ENDPOINT));
+    debugInfo("Porta AWS IoT: " + String(AWS_IOT_PORT));
 
     mqttClient.setCallback(callbackInternoMQTT);
     debugInfo("Callback interno no MQTT configurado.");
@@ -132,125 +102,110 @@ void configurarMQTT()
 
 void conectarMQTT()
 {
-    if (!wifiEstaConectado)
+    if(!wifiEstaConectado())
     {
-        debugErro("MQTT não pode se conectar porqie o WiFi está desconectado.");
+        debugErro("MQTT não pode conectar porque o WiFi está desconectado.");
         return;
     }
 
-    debugInfo("==================================");
-    debugInfo(" Iniciando conexão MQTT");
-    debugInfo("==================================");
+    debugInfo("===========================");
+    debugInfo("Iniciando conexão MQTT...");
+    debugInfo("===========================");
 
     int tentativasMQTT = 0;
     const int maxTentativasMQTT = 5;
 
-    while (!mqttClient.connected() && tentativasMQTT < maxTentativasMQTT)
+    while(!mqttClient.connected() && tentativasMQTT < maxTentativasMQTT)
     {
-        debugInfo("tentando conectar ao broker MQTT. Tentativa: " + String(tentativasMQTT));
+        debugInfo("Tentando conectar ao broker MQTT. Tentativa: " + String(tentativasMQTT));
 
-        bool conectado = false;
+        bool conectado = mqttClient.connect(AWS_IOT_CLIENT_ID);;
 
-        if (USAR_AWS_IOT)
+        if(conectado)
         {
-            conectado = mqttClient.connect(AWS_IOT_CLIENT_ID);
-        }
-
-        else
-        {
-            if (strlen(MQTT_USUARIO) > 0)
-            {
-                debugInfo("conectando MQTT com usuario e senha.");
-                conectado = mqttClient.connect(MQTT_CLIENT_ID, MQTT_USUARIO, MQTT_SENHA);
-            }
-            else // conexão em modo anonimo
-            {
-                debugInfo("Conectando MQTT sem usuario e senha");
-                conectado = mqttClient.connect(MQTT_CLIENT_ID);
-            }
-        }
-
-        if (conectado)
-        {
-            debugInfo("MQTT conectado com sucesso!");
+            debugInfo("MQTT conectado com sucesso.");
 
             int totalTopicos = obterTotalTopicosRecebimento();
 
-            debugInfo("Total de topicos para a inscrição: " + String(totalTopicos));
+            debugInfo("Total de tópicos para inscricão: " + String(totalTopicos));
 
-            for (int i = 0; i < totalTopicos; i++)
+            for(int i = 0; i < totalTopicos; i++)
             {
-                const char *topico = obterTopicoRecebimnto(i);
+                const char* topico = obterTopicoRecebimento(i);
 
                 bool inscrito = mqttClient.subscribe(topico);
 
-                if (inscrito)
+                if(inscrito)
                 {
-                    debugInfo("inscrito no topico: " + String(topico));
+                    debugInfo("Inscrito no tópico: " + String(topico));
                 }
                 else
                 {
-                    debugErro("falha ao se inscrever no topico: " + String(topico));
+                    debugErro("Falha ao se inscrever no tópico: " + String(topico));
                 }
             }
-           publicarMensagemNoTopico(0, "ESP32 conectado ao MQTT");
+
+            publicarMensagemNoTopico(0, "ESP32 conectado ao MQTT");
+
         }
         else
         {
-            debugErro("falha ao conectar no MQTT, codigo de erro: " + String(mqttClient.state()));
+            debugErro("Falha ao conectar no MQTT. Código de erro: " + String(mqttClient.state()));
             tentativasMQTT++;
             delay(2000);
         }
-    } // FIM DO WHILE
+    }//FIM DO WHILE
     if (!mqttClient.connected())
     {
-        debugErro("não foi possivel conectar ao broker MQTT após " + String(maxTentativasMQTT) + "tentativas.");
+        debugErro("Nao foi possível conectar ao broker MQTT após" + String(maxTentativasMQTT) + "tentativas");
     }
 }
 
 int obterTotalTopicosRecebimento()
 {
-    return TOTAL_TOPICOS_RECEBER;
+    return TOTAL_TOPICOS_RECEBER;    
 }
 
 void garantirMQTTConectado()
 {
-    if (!wifiEstaConectado)
+    if (WiFi.status() != WL_CONNECTED) 
     {
-        debugErro("MQTT não reconectado porque o WiFi está conectado.");
-        return;
+        debugErro("MQTT não conectado porque o WiFi está desconectado.");
+        return; 
     }
+
     if (!mqttClient.connected())
     {
-        debugErro("MQTT conectado. tentando reconectar...");
+        debugErro("MQTT desconectado. Tentando reconectar...");
         conectarMQTT();
     }
 }
+
 
 void loopMQTT()
 {
     mqttClient.loop();
 }
 
-void publicarMensagem(const char *topico, const char *mensagem)
+void publicarMensagem(const char* topico, const char* mensagem)
 {
-    if (!mqttClient.connected())
+    if(!mqttClient.connected())
     {
-        debugErro("Não foi possivel publicar. MQTT desconectado");
+        debugErro("Não foi possível publicar. MQTT desconectado.");
         return;
     }
 
     bool publicado = mqttClient.publish(topico, mensagem);
 
-    if (publicado)
+    if(publicado)
     {
         debugInfo("Mensagem publicada via MQTT.");
-        debugInfo("topico: " + String(topico));
+        debugInfo("Topico: " + String(topico));
         debugInfo("Mensagem: " + String(mensagem));
     }
     else
     {
-        debugErro("Falha ao publicar mensagem no topico: " + String(topico));
+        debugErro("Falha ao publicar mensagem no tópico: " + String(topico));
     }
 }
 
@@ -258,17 +213,16 @@ void publicarMensagemNoTopico(int indiceTopico, const char* mensagem)
 {
     const char* topico = obterTopicoPublicacao(indiceTopico);
 
-    if (strlen(topico) == 0)
+    if(strlen(topico) == 0)
     {
-        debugErro("Não foi possivel publicar. indice de topico invalido: " + String(indiceTopico));
+        debugErro("Não foi possível publicar. Índice de tópico inválido: " + String(indiceTopico));
         return;
     }
 
     publicarMensagem(topico, mensagem);
-    
 }
 
-bool mqttMensagem()
+bool mqttEstaConectado()
 {
     return mqttClient.connected();
 }

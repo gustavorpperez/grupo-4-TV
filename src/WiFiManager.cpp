@@ -1,10 +1,9 @@
-// WiFiManager.cpp
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
-#include <WiFiManager.h>
-#include <secrets.h>
+#include "WiFiManager.h" // Alterado para aspas por boa prática se estiver na pasta local
+#include "secrets.h"     // Corrigido de < > para " "
 #include "DebugManager.h"
 
 void conectarWiFi()
@@ -13,7 +12,7 @@ void conectarWiFi()
     debugInfo("iniciando uma conexão WiFi...");
     debugInfo("======================================================================");
 
-    // configura o esp32 como estation, ou seja
+    // configura o esp32 como station, ou seja,
     // ele vai se conectar a um roteador existente.
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_SENHA);
@@ -23,7 +22,8 @@ void conectarWiFi()
     int tentativas = 0;
     const int maxTentativa = 30;
 
-    while (WiFi.status() != WL_CONNECTED && tentativas == maxTentativa)
+    // CORRIGIDO: Agora usa < (menor que) para rodar o loop até atingir o limite
+    while (WiFi.status() != WL_CONNECTED && tentativas < maxTentativa)
     {
         delay(500);
         debugInfoSemLinha(".");
@@ -36,7 +36,7 @@ void conectarWiFi()
     {
         debugInfo("WiFi conectado com sucesso!");
         debugInfoSemLinha("[INFO]Endereço IP: ");
-        debugInfoSemLinha(String(WiFi.localIP()));
+        debugInfoSemLinha(WiFi.localIP().toString()); // CORRIGIDO: Uso do .toString()
         debugInfoSemLinha("\n\r");
     }
     else
@@ -47,7 +47,6 @@ void conectarWiFi()
 }
 
 void garantirWifiConectado()
-
 {
     if (WiFi.status() != WL_CONNECTED)
     {
