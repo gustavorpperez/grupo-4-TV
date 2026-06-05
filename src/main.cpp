@@ -20,7 +20,10 @@ void tratarJsonComando(const String &mensagem);
 void conectarTelevisao(uint32_t codigo);
 void receberSinalInfraRed();
 void tratarMensagemRecebida(const char *topico, const String &mensagem);
+<<<<<<< HEAD
 void retornarIHM();
+=======
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
 
 bool MQTTrecebido = false;
 
@@ -42,6 +45,7 @@ void loop()
   garantirMQTTConectado();
   loopMQTT();
   receberSinalInfraRed();
+<<<<<<< HEAD
   retornarIHM(); // ✅ estava faltando
 } 
 
@@ -78,6 +82,39 @@ const ComandoIR tabelaComandos[] = {
 };
 
 const int totalComandos = sizeof(tabelaComandos) / sizeof(tabelaComandos[0]);
+=======
+}
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
+
+struct ComandoIR
+{
+  const char *nome;
+  uint32_t codigo;
+};
+
+const ComandoIR tabelaComandos[] = {
+    {"power", 0x20DF10EF},
+    {"baixar_volume", 0x20DF40BF},
+    {"aumentar_volume", 0x20DFC03F},
+    {"botao_ok", 0x20DF22DD},
+    {"mute", 0x20DF906F},
+    {"hdmi1", 0x20DF738C},
+    {"hdmi2", 0x20DFB34C},
+    {"botão_cima", 0x20DF02FD},
+    {"botão_baixo", 0x20DF827D},
+    {"botão_esquerda", 0x20DFE01F},
+    {"botão_direita", 0x20DF609F},
+    {"1", 0x20DF8877},
+    {"2", 0x20DF48B7},
+    {"3", 0x20DFC837},
+    {"4", 0x20DF28D7},
+    {"5", 0x20DFA857},
+    {"6", 0x20DF6897},
+    {"7", 0x20DFE817},
+    {"8", 0x20DF18E7},
+    {"9", 0x20DF9867},
+    {"0", 0x20DF08F7},
+};
 
 void tratarMensagemRecebida(const char *topico, const String &mensagem)
 {
@@ -93,7 +130,11 @@ void tratarMensagemRecebida(const char *topico, const String &mensagem)
   debugInfo("Topico: " + String(topico));
   debugInfo("Mensagem: " + mensagem);
 
+<<<<<<< HEAD
 if (strncmp(topico, "senai134/equipe/yoshi/devices/", 30) == 0)
+=======
+  if (strcmp(topico, "senai134/equipe/yoshi/devices/#") == 0)
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
   {
     tratarJsonComando(mensagem);
     return;
@@ -114,16 +155,25 @@ void tratarJsonComando(const String &mensagem)
     return;
   }
 
+<<<<<<< HEAD
   if (!doc["tv"]["comando"].is<const char *>())
   {
     debugErro("JSON inválido. Use tv.comando (ex: power, mute...)");
     return;
   }
+=======
+    if (!doc["tv"]["comando"].is<const char *>())
+    {
+      debugErro("JSON inválido. Use tv.comando (ex: power, volume_up, mute...)");
+      return;
+    }
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
 
   String comando = doc["tv"]["comando"].as<String>();
   comando.toLowerCase();
   debugInfo("Comando recebido: " + comando);
 
+<<<<<<< HEAD
   for (int i = 0; i < totalComandos; i++)
   {
     if (comando == tabelaComandos[i].nome)
@@ -135,6 +185,9 @@ void tratarJsonComando(const String &mensagem)
   }
 
   debugErro("Comando desconhecido: " + comando);
+=======
+  MQTTrecebido = true;
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
 }
 
 void conectarTelevisao(uint32_t codigo)
@@ -147,6 +200,10 @@ void conectarTelevisao(uint32_t codigo)
   irrecv.resume(); // Reativa o receptor após o envio
 
   Serial.println("Sinal enviado!");
+<<<<<<< HEAD
+=======
+  delay(200); // debounce do botão
+>>>>>>> eaadc3d7d421a569f67a6e8330c1d236eab018cd
 
   debugInfo("Sinal IR enviado: 0x" + String(codigo, HEX));
  // publicarMensagem(TOPICO_STATUS, "{\"tv\":{\"status\":\"comando_enviado\"}}");
