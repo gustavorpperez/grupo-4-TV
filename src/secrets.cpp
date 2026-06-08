@@ -100,17 +100,17 @@ const char *AWS_IOT_CLIENT_ID = "yoshi-programa";
 
 const char *TOPICOS_PUBLICAR[] = {
     "senai134/equipe/yoshi/devices/televisao",
-    //"senai134/shared/projeto/publicar"
+    "senai134/shared/projeto/televisao"
 };
 
 const int TOTAL_TOPICOS_PUBLICAR = 1;
 
 const char *TOPICOS_RECEBER[] = {
     "senai134/equipe/yoshi/devices/#",
-    //"senai134/shared/projeto/#"
+    "senai134/shared/projeto/televisao"
 };
 
-const int TOTAL_TOPICOS_RECEBER = 1;
+const int TOTAL_TOPICOS_RECEBER = 2;
 
 // ===================================
 // DEBUG
