@@ -1,22 +1,11 @@
-<div align="center">
+# 📺 ESP32 TV IR Control
+**WiFi + MQTT + Infrared + AWS IoT Core — Arquitetura Não-Bloqueante**
 
-# 📡 ESP32 IoT Smart Control System
-
-**Biblioteca Arduino/ESP32 para gerenciamento não-bloqueante de WiFi e MQTT, com controle infrared e integração AWS IoT Core.**
-
-[![Platform](https://img.shields.io/badge/platform-ESP32-blue?style=flat-square&logo=espressif&logoColor=white)](https://www.espressif.com/)
-[![Framework](https://img.shields.io/badge/framework-Arduino-00979D?style=flat-square&logo=arduino&logoColor=white)](https://www.arduino.cc/)
-[![MQTT](https://img.shields.io/badge/broker-MQTT%20%7C%20AWS%20IoT-FF9900?style=flat-square&logo=amazonaws)](https://aws.amazon.com/iot-core/)
-[![PlatformIO](https://img.shields.io/badge/build-PlatformIO-orange?style=flat-square&logo=platformio)](https://platformio.org/)
-[![License](https://img.shields.io/badge/license-Acadêmico-lightgrey?style=flat-square)](./LICENSE)
-
-</div>
-
----
+Sistema embarcado desenvolvido para o ESP32, com foco em conectividade IoT robusta, comunicação MQTT segura via AWS IoT Core e controle de dispositivos via infravermelho (IR). Desenvolvido como projeto acadêmico no SENAI.
 
 ## 👨‍💻 Equipe
 
-| Integrante |
+| Nome |
 |---|
 | Narcizo Silvério de Almeida |
 | Giovanna Mafra Zau |
@@ -25,267 +14,193 @@
 | Luiz Antônio Uchoa Lacerda |
 | Pedro Stain Furtado |
 
----
-
-## 📋 Sumário
-
-- [Visão Geral](#-visão-geral)
-- [Por que não-bloqueante?](#-por-que-não-bloqueante)
-- [Arquitetura](#️-arquitetura-do-sistema)
-- [Conectividade WiFi](#-conectividade-wifi)
-- [Comunicação MQTT](#️-comunicação-mqtt)
-- [Controle Infrared](#-controle-infrared-ir)
-- [Reconexão Automática](#-sistema-de-reconexão)
-- [Sistema de Debug](#-sistema-de-debug)
-- [AWS IoT Core](#️-aws-iot-core)
-- [Tecnologias](#-tecnologias-utilizadas)
-- [Melhorias Futuras](#-melhorias-futuras)
+> Depende de: `PubSubClient`, `ArduinoJson`, `IRremoteESP8266` — instalados via PlatformIO.
 
 ---
 
-## 🚀 Visão Geral
-
-O sistema foi projetado para atuar como um **gateway IoT inteligente**, capaz de:
-
-- 📶 Conectar-se automaticamente a redes WiFi
-- ☁️ Comunicar-se com brokers MQTT (HiveMQ / Mosquitto / AWS IoT Core)
-- 📡 Receber comandos remotos estruturados em JSON
-- 📺 Controlar dispositivos via infravermelho (TVs e eletrônicos)
-- 🔄 Garantir reconexão automática em caso de falhas
-- 🧠 Registrar logs inteligentes com níveis de debug configuráveis
 
 ---
 
-## 🧠 Por que não-bloqueante?
+## Por que não-bloqueante?
 
-A abordagem tradicional **trava o microcontrolador** com `while()`, impedindo qualquer execução paralela:
+A abordagem tradicional usa `while()` para aguardar conexão, travando o microcontrolador:
 
 ```cpp
 // ❌ Bloqueante — trava o setup() por até 15 segundos
-while (WiFi.status() != WL_CONNECTED) {
-  delay(500);
-}
+while (WiFi.status() != WL_CONNECTED) { delay(500); }
 ```
 
-Este projeto usa **máquinas de estado processadas no `loop()`**:
+Este projeto usa verificação contínua de estado processada no `loop()`:
 
 ```cpp
 // ✅ Não-bloqueante — setup() retorna imediatamente
 void loop() {
-  garantirWifiConectado();   // verifica estado, reconecta se necessário
-  garantirMQTTConectado();   // idem para o broker MQTT
-  loopMQTT();                // processa mensagens recebidas
-  receberSinalInfraRed();    // captura IR em paralelo
+  garantirWifiConectado();  // avança sem travar
+  garantirMQTTConectado();
+  loopMQTT();
+  // sua lógica continua normalmente
 }
 ```
 
-**Resultado direto:**
-
-- ✅ Sem travamento do ESP32
-- ✅ Execução paralela de tarefas
-- ✅ Maior estabilidade em produção
+**Resultado:** sem travamento do ESP32, execução paralela de tarefas e maior estabilidade em produção.
 
 ---
 
-## ⚙️ Arquitetura do Sistema
+## Funcionalidades
 
-O projeto é organizado em **módulos independentes e desacoplados**:
+- ✅ WiFi e MQTT não-bloqueantes com reconexão automática
+- ✅ Três modos de conexão: SIMPLES, TLS e AWS IoT Core
+- ✅ Recebimento de comandos estruturados em JSON via MQTT
+- ✅ Controle de TV via infravermelho com tabela de comandos mapeados
+- ✅ Captura de sinais IR de controles originais via Serial
+- ✅ Publicação de status de volta ao broker após cada comando executado
+- ✅ Sistema de logs com níveis configuráveis por GPIO
+- ✅ Arquitetura modular e escalável para múltiplos dispositivos
+
+---
+
+## Estrutura do Projeto
 
 ```
-src/
-├── main.cpp           → Fluxo principal (setup e loop)
-├── WiFiManager.cpp    → Conexão e reconexão WiFi
-├── mqttManager.cpp    → Comunicação MQTT (Pub/Sub)
-├── debugManager.cpp   → Sistema de logs e diagnóstico
-└── secrets.cpp        → Configurações (WiFi, MQTT, AWS)
+├── include/
+│   ├── WiFiManager.h       → Interface de conexão WiFi
+│   ├── mqttManager.h       → Interface de comunicação MQTT
+│   ├── debugManager.h      → Interface do sistema de logs
+│   └── secrets.h           → Credenciais e configurações
+├── src/
+│   ├── main.cpp            → Fluxo principal (setup e loop)
+│   ├── WiFiManager.cpp     → Conexão e reconexão WiFi
+│   ├── mqttManager.cpp     → Comunicação MQTT (Pub/Sub)
+│   ├── debugManager.cpp    → Sistema de logs e diagnóstico
+│   └── secrets.cpp         → Credenciais WiFi, MQTT e AWS
+├── platformio.ini          → Configuração do ambiente PlatformIO
+└── README.md
 ```
 
 ---
 
-## 🌐 Conectividade WiFi
+## Instalação
 
-O gerenciador WiFi realiza todo o ciclo de vida da conexão:
+1. Clone o repositório e abra no VS Code com PlatformIO instalado.
+2. Configure as credenciais no arquivo `src/secrets.cpp`:
 
-- ✅ Configuração em modo `WIFI_STA`
-- ✅ Tentativas automáticas com controle de número máximo
-- ✅ Logs detalhados de status em cada etapa
-- ✅ Recuperação automática de falhas de rede
+```cpp
+const char *WIFI_SSID = "SUA_REDE";
+const char *WIFI_SENHA = "SUA_SENHA";
+const char *AWS_IOT_ENDPOINT = "seu-endpoint.iot.us-east-1.amazonaws.com";
+```
 
-> **Reconnect inteligente:** se a conexão cair, o sistema detecta automaticamente, reinicia o processo de conexão e mantém o microcontrolador operacional — sem intervenção externa.
+3. Adicione os certificados AWS em `src/secrets.cpp` (`AWS_CERT_CA`, `AWS_CERT_CRT`, `AWS_CERT_PRIVATE`).
+4. Compile e grave com **PlatformIO: Upload**.
 
 ---
 
-## ☁️ Comunicação MQTT
+## Modos de Conexão
 
-Implementação baseada em `PubSubClient` com suporte a três modos de segurança:
+| Modo | Quando usar |
+|---|---|
+| `SIMPLES` | Broker local sem criptografia (ex: Mosquitto em rede interna) |
+| `TLS` | Broker com certificado CA (ex: HiveMQ Cloud) |
+| `AWS IoT Core` | Conexão segura com mTLS — certificado por dispositivo |
 
-| Modo | Enum | Quando usar |
-|------|------|-------------|
-| 🔓 **SIMPLES** | `ModoConexao::SIMPLES` | Redes locais confiáveis, testes |
-| 🔐 **TLS** | `ModoConexao::TLS` | Ambientes de produção |
-| ☁️ **AWS IoT Core** | `ModoConexao::AWS` | Comunicação corporativa com mTLS |
+Configurado em `secrets.cpp` pela flag:
 
-### 📥 Tópicos MQTT
+```cpp
+const bool USAR_AWS_IOT = true;  // false para SIMPLES ou TLS
+const bool MQTT_TLS     = false;
+```
+
+---
+
+## Tópicos MQTT
 
 | Direção | Tópico |
-|---------|--------|
+|---|---|
 | 🔽 Recebimento | `senai134/equipe/yoshi/devices/#` |
-| 🔼 Status | `senai134/esp32/status` |
-| 🔼 Log | `senai134/esp32/log` |
-| 🔼 Resposta | `senai134/esp32/resposta` |
+| 🔽 Recebimento | `senai134/shared/projeto/televisao` |
+| 🔼 Publicação | `senai134/equipe/yoshi/devices/televisao` |
 
-### 🔄 Fluxo de Mensagem
+---
 
-```
-ESP32 → conecta ao broker
-      → assina tópicos
-      → recebe JSON
-      → processa comando
-      → executa ação IR
-      → publica status
-```
-
-### 🧾 Estrutura do JSON
+## Formato da Mensagem JSON
 
 ```json
 {
   "tv": {
-    "comando": "power"
+    "comando": 1
   }
 }
 ```
 
-O payload passa por conversão com `ArduinoJson`, validação de estrutura, normalização via `tolower()` e busca na tabela de comandos antes de ser executado.
+O campo `comando` é um número inteiro que mapeia para um botão da TV:
+
+| Número | Ação | Número | Ação |
+|---|---|---|---|
+| `1` | Power (liga/desliga) | `13` | Botão direito |
+| `2` | Abaixar volume | `14` | Tecla 1 |
+| `3` | Aumentar volume | `15` | Tecla 2 |
+| `4` | OK (confirmar) | `16` | Tecla 3 |
+| `5` | Mudo (mute) | `17` | Tecla 4 |
+| `6` | HDMI 1 | `18` | Tecla 5 |
+| `7` | HDMI 2 | `19` | Tecla 6 |
+| `8` | HDMI 3 | `20` | Tecla 7 |
+| `9` | HDMI 4 | `21` | Tecla 8 |
+| `10` | Botão cima | `22` | Tecla 9 |
+| `11` | Botão baixo | `23` | Tecla 0 |
+| `12` | Botão esquerdo | | |
 
 ---
 
-## 📺 Controle Infrared (IR)
-
-O sistema suporta envio (`IRsend`) e leitura (`IRrecv`) de sinais infravermelhos com uma tabela de comandos mapeados:
-
-| Comando | Código HEX |
-|---------|-----------|
-| `power` | `0x20DF10EF` |
-| `mute` | `0x20DF906F` |
-| `1` | `0x20DF8877` |
-| `2` | `0x20DF48B7` |
-| `...` | `...` |
-
-**Funcionalidades suportadas:**
-
-- ✅ Ligar/desligar TV
-- ✅ Controle de volume
-- ✅ Navegação direcional
-- ✅ Seleção de entrada HDMI
-- ✅ Teclado numérico completo
-- ✅ Captura de sinais do controle original
-
-### 📡 Fluxo IR
+## Fluxo Completo
 
 ```
-MQTT → JSON recebido
-     ↓
-Parser identifica comando
-     ↓
-Busca código na tabela IR
-     ↓
-ESP32 envia sinal infravermelho
-     ↓
-TV executa a ação
-```
-
----
-
-## 🔄 Sistema de Reconexão
-
-| Componente | Comportamento |
-|------------|--------------|
-| 📶 **WiFi** | Detecção automática de queda, reconexão contínua e reinicialização segura |
-| ☁️ **MQTT** | Tentativas com backoff entre reconexões e reinscrição automática nos tópicos |
-
----
-
-## 🧠 Sistema de Debug
-
-Sistema avançado com **quatro níveis configuráveis**:
-
-| Nível | Nome | Descrição |
-|:-----:|------|-----------|
-| `0` | `NONE` | Sem saída de logs |
-| `1` | `ERROR` | Apenas erros críticos |
-| `2` | `INFO` | Fluxo geral do sistema |
-| `3` | `FULL` | Diagnóstico completo |
-
-**Recursos inclusos:**
-
-- 📝 Logs formatados por categoria
-- 🔌 Saída via Serial
-- 🎛️ Controle por GPIO
-- 🔍 Diagnóstico detalhado de WiFi e MQTT com dicas de solução
-
----
-
-## ☁️ AWS IoT Core
-
-Suporte completo à integração com AWS IoT via **mTLS** (autenticação mútua com certificados):
-
-- Certificado CA da Amazon
-- Certificado individual do dispositivo
-- Chave privada RSA
-- Endpoint configurável por projeto
-
-```
-a2uwr88uek3twk-ats.iot.us-east-1.amazonaws.com
+Broker MQTT → JSON recebido
+                   │
+                   ▼
+      tratarMensagemRecebida()   → valida o tópico
+                   │
+                   ▼
+      tratarJsonComando()        → faz o parse do JSON
+                   │
+                   ▼
+      tabela de comandos IR      → acha o código hex
+                   │
+                   ▼
+      conectarTelevisao()        → envia sinal IR para a TV
+                   │
+                   ▼
+      retornarIHM()              → publica status de volta ao broker
 ```
 
 ---
 
-## 🔧 Tecnologias Utilizadas
+## Sistema de Debug
 
-| Tecnologia | Função |
-|------------|--------|
-| 🟢 **Arduino Framework** | Base de desenvolvimento para o ESP32 |
-| 📡 **PubSubClient** | Comunicação MQTT (Pub/Sub) |
-| 🌐 **WiFi / WiFiClientSecure** | Conectividade e comunicação segura TLS |
-| 📦 **ArduinoJson** | Parsing e validação de mensagens JSON |
-| 📺 **IRremoteESP8266** | Envio e recepção de sinais infravermelhos |
-| ☁️ **AWS IoT Core** | Broker MQTT gerenciado na nuvem com mTLS |
-| 🧠 **DebugManager** | Sistema de logs customizado por nível |
+Níveis configuráveis em `secrets.cpp`:
 
----
+| Nível | Constante | Descrição |
+|---|---|---|
+| `0` | `NONE` | Sem logs |
+| `1` | `DEBUG_ERRO` | Apenas erros |
+| `2` | `DEBUG_TUDO` | Todas as mensagens |
 
-## ⚡ Características Técnicas
-
-- ✔ Execução não-bloqueante no `loop()`
-- ✔ Arquitetura modular e de fácil extensão
-- ✔ Compatível com múltiplos brokers MQTT
-- ✔ Suporte a TLS e certificados mTLS
-- ✔ Controle IR de alta precisão
-- ✔ Reconexão automática WiFi e MQTT
-- ✔ Sistema de logs por nível de severidade
-- ✔ Escalável para múltiplos dispositivos
+O pino `PINO_HABILITA_DEBUG_COMPLETO` força o nível máximo quando conectado ao GND — útil para diagnóstico em campo sem recompilar.
 
 ---
 
-## 📈 Melhorias Futuras
+## Tecnologias
 
-- 📱 App mobile para controle remoto
-- 🧠 Integração com Alexa / Google Assistant
-- 📊 Dashboard web em tempo real
-- 🔋 Monitoramento de consumo de energia
-- 📡 Suporte a múltiplos dispositivos IR
-- ☁️ Persistência em banco de dados na nuvem
-
----
-
-## 📄 Licença
-
-Projeto acadêmico desenvolvido para fins educacionais.
+| Tecnologia | Uso |
+|---|---|
+| Arduino Framework (ESP32) | Base do sistema embarcado |
+| PubSubClient | Comunicação MQTT |
+| ArduinoJson | Parse de mensagens JSON |
+| IRremoteESP8266 | Envio e recepção de sinais IR |
+| WiFiClientSecure | Conexão TLS e AWS IoT Core |
+| AWS IoT Core | Broker MQTT seguro na nuvem |
 
 ---
 
-<div align="center">
+## Licença
 
-*Sistema IoT embarcado real — conectividade em rede, automação IR, segurança TLS/AWS e arquitetura não-bloqueante otimizada para microcontroladores.*
-
-</div>
+Projeto acadêmico desenvolvido para fins educacionais — SENAI.
