@@ -17,33 +17,6 @@ Sistema embarcado desenvolvido para o ESP32, com foco em conectividade IoT robus
 > Depende de: `PubSubClient`, `ArduinoJson`, `IRremoteESP8266` — instalados via PlatformIO.
 
 ---
-
-
----
-
-## Por que não-bloqueante?
-
-A abordagem tradicional usa `while()` para aguardar conexão, travando o microcontrolador:
-
-```cpp
-// ❌ Bloqueante — trava o setup() por até 15 segundos
-while (WiFi.status() != WL_CONNECTED) { delay(500); }
-```
-
-Este projeto usa verificação contínua de estado processada no `loop()`:
-
-```cpp
-// ✅ Não-bloqueante — setup() retorna imediatamente
-void loop() {
-  garantirWifiConectado();  // avança sem travar
-  garantirMQTTConectado();
-  loopMQTT();
-  // sua lógica continua normalmente
-}
-```
-
-**Resultado:** sem travamento do ESP32, execução paralela de tarefas e maior estabilidade em produção.
-
 ---
 
 ## Funcionalidades
@@ -114,11 +87,10 @@ const bool MQTT_TLS     = false;
 
 ## Tópicos MQTT
 
-| Direção | Tópico |
+| | Tópico |
 |---|---|
-| 🔽 Recebimento | `senai134/equipe/yoshi/devices/#` |
-| 🔽 Recebimento | `senai134/shared/projeto/televisao` |
-| 🔼 Publicação | `senai134/equipe/yoshi/devices/televisao` |
+| | `senai134/shared/projeto/televisao` |
+| | `senai134/equipe/yoshi/devices/televisao` |
 
 ---
 
